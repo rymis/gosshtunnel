@@ -38,10 +38,10 @@ func newRedirectInfo(r string) (*redirectInfo, error) {
 
 	if len(parts) == 2 { // "port:port"
 		res.Listen = fmt.Sprintf("localhost:%s", parts[0])
-		res.Listen = fmt.Sprintf("localhost:%s", parts[1])
+		res.Connect = fmt.Sprintf("localhost:%s", parts[1])
 	} else if len(parts) == 4 {
 		res.Listen = fmt.Sprintf("%s:%s", parts[0], parts[1])
-		res.Listen = fmt.Sprintf("%s:%s", parts[2], parts[3])
+		res.Connect = fmt.Sprintf("%s:%s", parts[2], parts[3])
 	}
 
 	return res, nil

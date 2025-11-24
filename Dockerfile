@@ -10,4 +10,3 @@ FROM debian:bookworm
 COPY --from=build /src/gosshtunnel /bin/gosshtunnel
 
 CMD [ "/bin/gosshtunnel" ]
-ENTRYPOINT [ "/bin/gosshtunnel" ]
