@@ -6,7 +6,8 @@ WORKDIR /src
 
 RUN go build
 
-FROM scratch
+FROM debian:bookworm
 COPY --from=build /src/gosshtunnel /bin/gosshtunnel
 
 CMD [ "/bin/gosshtunnel" ]
+ENTRYPOINT [ "/bin/gosshtunnel" ]
