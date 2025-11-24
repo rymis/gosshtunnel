@@ -98,6 +98,10 @@ func mainErr() error {
 		redirects = append(redirects, rinfo)
 	}
 
+	if !*genBlueprint && len(redirects) == 0 {
+		return fmt.Errorf("No redirects are defined, no reason to start.")
+	}
+
 	ssh, err := NewSshTunnel(*user, *host, *key, *blueprint)
 	if err != nil {
 		return err
