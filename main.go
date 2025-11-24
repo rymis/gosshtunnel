@@ -59,6 +59,7 @@ func mainErr() error {
 		fmt.Fprintf(flag.CommandLine.Output(), "Usage: gosshtunnel -key private_key -host remote-host.net [-user user] [-blueprint blueprint] [-showBlueprint] redirects...\n")
 		fmt.Fprintf(flag.CommandLine.Output(), "Each redirect has form [remoteHost:]remotePort:[localHost:]localhost\n")
 		fmt.Fprintf(flag.CommandLine.Output(), "remoteHost and localHost must be either both present and both absent.\n")
+		fmt.Fprintf(flag.CommandLine.Output(), "Additional way to define redirects is to use SSH_REDIRECTS environment variable.")
 		flag.PrintDefaults()
 	}
 
@@ -78,6 +79,18 @@ func mainErr() error {
 
 	redirects := make([]*redirectInfo, 0)
 	for _, redirect := range flag.Args() {
+		rinfo, err := newRedirectInfo(redirect)
+		if err != nil {
+			return err
+		}
+		redirects = append(redirects, rinfo)
+	}
+
+	for _, redirect := range strings.Split(os.Getenv("SSH_REDIRECTS"), "/") {
+		if redirect == "" {
+			continue
+		}
+
 		rinfo, err := newRedirectInfo(redirect)
 		if err != nil {
 			return err
