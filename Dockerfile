@@ -1,9 +1,12 @@
-FROM golang:1.24
+FROM golang:1.24 AS build
 
 RUN mkdir /src
 COPY . /src
+WORKDIR /src
+
+RUN go build
 
 FROM scratch
-COPY --from=0 /src/gosshtunnel /bin/gosshtunnel
+COPY --from=build /src/gosshtunnel /bin/gosshtunnel
 
 CMD [ "/bin/gosshtunnel" ]
