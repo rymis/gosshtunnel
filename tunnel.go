@@ -6,25 +6,21 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"os"
 	"strings"
 
 	"golang.org/x/crypto/ssh"
 )
 
+// SshClient context
 type SshClient struct {
 	conn *ssh.Client
 	pkBlueprint string
 }
 
-func NewSshTunnel(user, host, key, blueprint string) (*SshClient, error) {
-	// Try to read and parse the key:
-	keyData, err := os.ReadFile(key)
-	if err != nil {
-		return nil, err
-	}
-
-	signer, err := ssh.ParsePrivateKey(keyData)
+// Create SshClient
+func NewSshClient(user, host, key, blueprint string) (*SshClient, error) {
+	// Parse parameter and load private key:
+	signer, err := LoadPrivateKey(key)
 	if err != nil {
 		return nil, err
 	}

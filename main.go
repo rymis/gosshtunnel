@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"golang.org/x/crypto/ssh"
 )
 
 // Get default value of variable from environment and create flag.
@@ -54,12 +56,13 @@ func mainErr() error {
 	user := envString("user", "USER", "Username to use for connection")
 	blueprint := envString("blueprint", "SSH_KEY_BLUEPRINT", "Blueprint of server public key")
 	genBlueprint := flag.Bool("showBlueprint", false, "Show remote server key blueprint and exit")
+	genPublic := flag.Bool("showPublic", false, "Show public key and exit")
 
 	flag.Usage = func() {
 		fmt.Fprintf(flag.CommandLine.Output(), "Usage: gosshtunnel -key private_key -host remote-host.net [-user user] [-blueprint blueprint] [-showBlueprint] redirects...\n")
 		fmt.Fprintf(flag.CommandLine.Output(), "Each redirect has form [remoteHost:]remotePort:[localHost:]localhost\n")
 		fmt.Fprintf(flag.CommandLine.Output(), "remoteHost and localHost must be either both present and both absent.\n")
-		fmt.Fprintf(flag.CommandLine.Output(), "Additional way to define redirects is to use SSH_REDIRECTS environment variable.")
+		fmt.Fprintf(flag.CommandLine.Output(), "Additional way to define redirects is to use SSH_REDIRECTS environment variable.\n")
 		flag.PrintDefaults()
 	}
 
@@ -67,6 +70,18 @@ func mainErr() error {
 
 	if *key == "" {
 		return fmt.Errorf("Argument `key` is mandatory")
+	}
+
+	if *genPublic {
+		// We need to show public key and exit:
+		signer, err := LoadPrivateKey(*key)
+		if err != nil {
+			return err
+		}
+
+		fmt.Println(string(ssh.MarshalAuthorizedKey(signer.PublicKey())))
+
+		return nil
 	}
 
 	if *host == "" {
@@ -102,7 +117,7 @@ func mainErr() error {
 		return fmt.Errorf("No redirects are defined, no reason to start.")
 	}
 
-	ssh, err := NewSshTunnel(*user, *host, *key, *blueprint)
+	ssh, err := NewSshClient(*user, *host, *key, *blueprint)
 	if err != nil {
 		return err
 	}
